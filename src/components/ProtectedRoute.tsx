@@ -1,26 +1,25 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProtectedRoute() {
-  const userStr = localStorage.getItem('user');
-  let isUser = false;
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
 
-  if (userStr) {
-    try {
-      const user = JSON.parse(userStr);
-      // Kiểm tra có thông tin user không
-      if (user && user.email) {
-        isUser = true;
-      }
-    } catch (e) {
-      console.error('Lỗi khi đọc thông tin user từ localStorage:', e);
-    }
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <svg className="h-8 w-8 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      </div>
+    );
   }
 
-  // Nếu chưa đăng nhập, chuyển về trang /login
-  if (!isUser) {
-    return <Navigate to="/login" replace />;
+  if (!user) {
+    // Lưu trang hiện tại để sau khi đăng nhập có thể redirect lại
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Nếu đã đăng nhập, cho phép render các route con (như /profile)
   return <Outlet />;
 }
