@@ -1,26 +1,23 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function AdminRoute() {
-  const userStr = localStorage.getItem('user');
-  let isAdmin = false;
+  const { user, isLoading } = useAuth();
 
-  if (userStr) {
-    try {
-      const user = JSON.parse(userStr);
-      // Giả sử user có thuộc tính role như trong file User models
-      if (user && user.role === 'admin') {
-        isAdmin = true;
-      }
-    } catch (e) {
-      console.error('Lỗi khi đọc thông tin user từ localStorage:', e);
-    }
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <svg className="h-8 w-8 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      </div>
+    );
   }
 
-  // Nếu không phải admin, chuyển hướng trang lỗi 404 (Không tìm thấy trang)
-  if (!isAdmin) {
+  if (!user || user.role !== 'admin') {
     return <Navigate to="/404" replace />;
   }
 
-  // Nếu là admin, cho phép render các route con
   return <Outlet />;
 }

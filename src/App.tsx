@@ -1,5 +1,6 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Layout from './layouts/Layout';
+import AdminLayout from './layouts/AdminLayout';
 import HomePage from './pages/HomePage';
 import MenuPage from './pages/MenuPage';
 import ProductPage from './pages/ProductPage';
@@ -19,36 +20,42 @@ import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 import AdminRoute from './components/AdminRoute';
 import NotFoundPage from './pages/NotFoundPage';
 
+/** Wraps admin pages with the sidebar AdminLayout */
+function AdminShell({ children }: { children: React.ReactNode }) {
+  return <AdminLayout>{children}</AdminLayout>;
+}
+
 export default function App() {
   return (
-    <Layout>
-      <Routes>
+    <Routes>
+      {/* ── Public routes (uses Header + Footer Layout) ── */}
+      <Route element={<Layout><Outlet /></Layout>}>
         <Route path="/" element={<HomePage />} />
         <Route path="/menu" element={<MenuPage />} />
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/404" element={<NotFoundPage />} />
         {/* Trang cá nhân (Yêu cầu đăng nhập) */}
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      </Route>
 
-        {/* Các trang dành cho quản trị viên, được bảo vệ qua AdminRoute */}
-        <Route path="/admin" element={<AdminRoute />}>
-          <Route index element={<AdminDashboardPage />} />
-          <Route path="users" element={<AdminUsersPage />} />
-          <Route path="products" element={<AdminProductsPage />} />
-          <Route path="categories" element={<AdminCategoriesPage />} />
-          <Route path="tables" element={<AdminTablesPage />} />
-          <Route path="orders" element={<AdminOrdersPage />} />
-        </Route>
+      {/* ── Admin routes (uses AdminLayout with sidebar) ── */}
+      <Route path="/admin" element={<AdminRoute />}>
+        <Route index element={<AdminShell><AdminDashboardPage /></AdminShell>} />
+        <Route path="users" element={<AdminShell><AdminUsersPage /></AdminShell>} />
+        <Route path="products" element={<AdminShell><AdminProductsPage /></AdminShell>} />
+        <Route path="categories" element={<AdminShell><AdminCategoriesPage /></AdminShell>} />
+        <Route path="tables" element={<AdminShell><AdminTablesPage /></AdminShell>} />
+        <Route path="orders" element={<AdminShell><AdminOrdersPage /></AdminShell>} />
+      </Route>
 
-        <Route path="/404" element={<NotFoundPage />} />
-        <Route path="*" element={<Navigate to="/404" replace />} />
-      </Routes>
-    </Layout>
+      <Route path="*" element={<Navigate to="/404" replace />} />
+    </Routes>
   );
 }
