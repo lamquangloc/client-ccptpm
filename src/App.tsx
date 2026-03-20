@@ -13,6 +13,9 @@ import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminCreateUserPage from './pages/admin/AdminCreateUserPage';
+import AdminEditUserPage from './pages/admin/AdminEditUserPage';
+import AdminUserDetailsPage from './pages/admin/AdminUserDetailsPage';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
 import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
 import AdminTablesPage from './pages/admin/AdminTablesPage';
@@ -49,6 +52,9 @@ export default function App() {
       <Route path="/admin" element={<AdminRoute />}>
         <Route index element={<AdminShell><AdminDashboardPage /></AdminShell>} />
         <Route path="users" element={<AdminShell><AdminUsersPage /></AdminShell>} />
+        <Route path="users/create" element={<AdminShell><AdminCreateUserPage /></AdminShell>} />
+        <Route path="users/view/:id" element={<AdminShell><AdminUserDetailsPage /></AdminShell>} />
+        <Route path="users/edit/:id" element={<AdminShell><AdminEditUserPage /></AdminShell>} />
         <Route path="products" element={<AdminShell><AdminProductsPage /></AdminShell>} />
         <Route path="categories" element={<AdminShell><AdminCategoriesPage /></AdminShell>} />
         <Route path="tables" element={<AdminShell><AdminTablesPage /></AdminShell>} />
