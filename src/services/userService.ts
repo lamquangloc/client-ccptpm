@@ -22,12 +22,17 @@ export interface GetUsersResponse {
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('token');
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
     ...(options.headers || {}),
   };
   
   if (token) {
     (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+  }
+
+  if (options.body && !(options.body instanceof FormData)) {
+    if (!('Content-Type' in headers)) {
+      (headers as Record<string, string>)['Content-Type'] = 'application/json';
+    }
   }
 
   const res = await fetch(`${API_BASE}${path}`, {
@@ -65,12 +70,12 @@ export const userService = {
 
   createUser: (payload: any) => request<any>('/auth/register', {
     method: 'POST',
-    body: JSON.stringify(payload)
+    body: payload instanceof FormData ? payload : JSON.stringify(payload)
   }),
 
   updateUser: (id: string, payload: any) => request<User>(`/users/${id}`, {
     method: 'PUT',
-    body: JSON.stringify(payload)
+    body: payload instanceof FormData ? payload : JSON.stringify(payload)
   }),
 
   deleteUser: (id: string) => request<{ message: string }>(`/users/${id}`, {
