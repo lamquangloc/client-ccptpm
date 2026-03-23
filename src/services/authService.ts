@@ -57,6 +57,12 @@ export const authService = {
       body: JSON.stringify(payload),
     }),
 
+  googleLogin: (token: string) =>
+    request<AuthResponse>('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    }),
+
   forgotPassword: (email: string) =>
     request<{ message: string }>('/auth/forgot-password', {
       method: 'POST',
