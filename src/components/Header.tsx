@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000';
+
 export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -67,7 +69,7 @@ export default function Header() {
               </div>
               <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shadow-sm border border-slate-300">
                 <img
-                  src={user.avatar || `https://api.dicebear.com/7.x/notionists/svg?seed=${user.name}`}
+                  src={user.avatar && !user.avatar.includes('default') ? `${API_BASE}${user.avatar}` : `https://api.dicebear.com/7.x/notionists/svg?seed=${user.name}`}
                   alt="Avatar"
                   className="w-full h-full object-cover"
                 />

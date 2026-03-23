@@ -1,16 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { userService } from '../../services/userService';
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000';
 
 export default function AdminEditUserPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     role: 'user',
   });
+  
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -27,6 +33,9 @@ export default function AdminEditUserPage() {
           email: user.email || '',
           role: user.role || 'user',
         });
+        if (user.avatar && !user.avatar.includes('default')) {
+           setAvatarPreview(`${API_BASE}${user.avatar}`);
+        }
       } catch (err: any) {
         setError(err.message || 'Lỗi khi tải thông tin người dùng.');
       } finally {
@@ -40,6 +49,14 @@ export default function AdminEditUserPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,11 +66,16 @@ export default function AdminEditUserPage() {
     setError('');
     
     try {
-      await userService.updateUser(id, {
-        name: formData.name,
-        email: formData.email,
-        role: formData.role,
-      });
+      const payload = new FormData();
+      payload.append('name', formData.name);
+      payload.append('email', formData.email);
+      payload.append('role', formData.role);
+      
+      if (avatarFile) {
+        payload.append('avatar', avatarFile);
+      }
+      
+      await userService.updateUser(id, payload);
       navigate('/admin/users');
     } catch (err: any) {
       setError(err.message || 'Lỗi khi cập nhật người dùng.');
@@ -93,19 +115,44 @@ export default function AdminEditUserPage() {
               {/* Photo Upload area */}
               <div className="flex flex-col pl-4 items-center gap-4 w-full sm:w-1/3 border-b sm:border-b-0 sm:border-r border-gray-100 pb-6 sm:pb-0 sm:pr-6">
                 <div className="relative">
-                  <div className="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 border-2 border-dashed border-blue-200 uppercase font-bold text-2xl">
-                    {formData.name ? formData.name.charAt(0) : '?'}
+                  <div className="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 border-2 border-dashed border-blue-200 uppercase font-bold text-2xl overflow-hidden">
+                    {avatarPreview ? (
+                      <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-slate-400 font-bold text-4xl">{formData.name ? formData.name.charAt(0) : '?'}</span>
+                    )}
                   </div>
-                  <button type="button" className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition shadow-sm border-2 border-white">
+                  <button 
+                    type="button" 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition shadow-sm border-2 border-white"
+                  >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
                   </button>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleFileChange} 
+                    accept="image/*" 
+                    className="hidden" 
+                  />
                 </div>
                 <div className="text-center">
                   <h3 className="text-sm font-semibold text-slate-800">Profile Photo</h3>
                   <p className="text-[11px] text-slate-400 mt-1">Change user photo.</p>
                 </div>
+                <button 
+                  type="button" 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="mt-2 text-blue-600 hover:text-white border border-blue-600 hover:bg-blue-600 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  Change
+                </button>
               </div>
 
               {/* Form Fields */}
