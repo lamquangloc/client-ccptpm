@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface StatCard {
@@ -8,6 +8,7 @@ interface StatCard {
   positive: boolean;
   icon: React.ReactNode;
   iconBg: string;
+  id?: string;
 }
 
 interface StaffMember {
@@ -27,13 +28,14 @@ interface InventoryItem {
 }
 
 // ─── Data ────────────────────────────────────────────────────────────────────
-const statCards: StatCard[] = [
+const defaultStatCards: StatCard[] = [
   {
-    label: 'Net Profit Margin',
-    value: '18.5%',
-    change: '+2.4%',
+    label: 'Total Revenue',
+    value: '...',
+    change: '...',
     positive: true,
     iconBg: 'bg-green-50',
+    id: 'revenue',
     icon: (
       <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -42,11 +44,12 @@ const statCards: StatCard[] = [
     ),
   },
   {
-    label: 'Avg Turnover Time',
-    value: '45m',
-    change: '-5m',
+    label: 'Total Orders',
+    value: '...',
+    change: '...',
     positive: true,
     iconBg: 'bg-blue-50',
+    id: 'orders',
     icon: (
       <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -55,11 +58,12 @@ const statCards: StatCard[] = [
     ),
   },
   {
-    label: 'Food Cost %',
-    value: '28%',
-    change: '+1.2%',
+    label: 'Total Products',
+    value: '...',
+    change: '...',
     positive: false,
     iconBg: 'bg-orange-50',
+    id: 'products',
     icon: (
       <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -68,11 +72,12 @@ const statCards: StatCard[] = [
     ),
   },
   {
-    label: 'Labor Cost',
-    value: '$12,400',
-    change: '-3.5%',
+    label: 'Staff Count',
+    value: '...',
+    change: '...',
     positive: true,
     iconBg: 'bg-purple-50',
+    id: 'staff',
     icon: (
       <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -82,49 +87,20 @@ const statCards: StatCard[] = [
   },
 ];
 
-const staffData: StaffMember[] = [
-  { name: 'Sarah J.', tables: 42, sales: '$3,240', tips: '$580', avatar: 'Sarah' },
-  { name: 'Michael C.', tables: 38, sales: '$2,890', tips: '$495', avatar: 'Michael' },
-  { name: 'Emma W.', tables: 35, sales: '$2,450', tips: '$410', avatar: 'Emma' },
-  { name: 'David R.', tables: 28, sales: '$1,920', tips: '$340', avatar: 'David' },
-];
-
-const inventoryItems: InventoryItem[] = [
-  { name: 'Premium Ribeye', status: 'critical', statusText: 'Critical: Only 3 units left', emoji: '🥩', color: 'text-red-500' },
-  { name: 'House Red Wine (Merlot)', status: 'low', statusText: 'Low: 6 bottles remaining', emoji: '🍷', color: 'text-orange-500' },
-  { name: 'Linen Napkins', status: 'low', statusText: 'Low: Stock under 20%', emoji: '🪣', color: 'text-orange-500' },
-];
-
-// Peak Hours bar chart data (hour → today count, yesterday count)
-const peakHoursData = [
-  { hour: '11am', today: 12, yesterday: 15 },
-  { hour: '12pm', today: 28, yesterday: 22 },
-  { hour: '1pm', today: 72, yesterday: 45 },
-  { hour: '2pm', today: 35, yesterday: 58 },
-  { hour: '3pm', today: 18, yesterday: 20 },
-  { hour: '4pm', today: 22, yesterday: 18 },
-  { hour: '5pm', today: 40, yesterday: 42 },
-  { hour: '6pm', today: 80, yesterday: 90 },
-  { hour: '7pm', today: 95, yesterday: 88 },
-  { hour: '8pm', today: 85, yesterday: 75 },
-  { hour: '9pm', today: 30, yesterday: 35 },
-  { hour: '10pm', today: 14, yesterday: 18 },
-];
-
-// Donut chart slices (Bev: 40%, Food: 45%, Other: 15%)
-const donutSlices = [
-  { label: 'Bev', pct: 40, color: '#1e293b' },
-  { label: 'Food', pct: 45, color: '#334155' },
-  { label: 'Other', pct: 15, color: '#cbd5e1' },
-];
+const iconMap: Record<string, React.ReactNode> = {
+  revenue: defaultStatCards[0].icon,
+  orders: defaultStatCards[1].icon,
+  products: defaultStatCards[2].icon,
+  staff: defaultStatCards[3].icon
+};
 
 // ─── Donut Chart ─────────────────────────────────────────────────────────────
-function DonutChart() {
+function DonutChart({ slices, totalRevenue }: { slices: any[], totalRevenue: number }) {
   const cx = 70, cy = 70, r = 55, strokeW = 22;
   const circumference = 2 * Math.PI * r;
   let offset = 0;
 
-  const slices = donutSlices.map((s) => {
+  const processedSlices = (slices || []).map((s) => {
     const dash = (s.pct / 100) * circumference;
     const gap = circumference - dash;
     const rotationDeg = (offset / circumference) * 360 - 90;
@@ -134,7 +110,7 @@ function DonutChart() {
 
   return (
     <svg width={140} height={140} viewBox="0 0 140 140">
-      {slices.map((s, i) => (
+      {processedSlices.map((s, i) => (
         <circle
           key={i}
           cx={cx}
@@ -149,23 +125,23 @@ function DonutChart() {
           style={{ transition: 'stroke-dasharray 0.5s ease' }}
         />
       ))}
-      {/* Center text */}
-      <text x={cx} y={cy - 6} textAnchor="middle" className="text-sm font-bold" fontSize={13} fontWeight={700} fill="#1e293b">$45.2k</text>
+      <text x={cx} y={cy - 6} textAnchor="middle" className="text-sm font-bold" fontSize={13} fontWeight={700} fill="#1e293b">${(totalRevenue/1000).toFixed(1)}k</text>
       <text x={cx} y={cy + 10} textAnchor="middle" fontSize={8} fill="#94a3b8">Total Sales</text>
     </svg>
   );
 }
 
 // ─── Bar Chart ───────────────────────────────────────────────────────────────
-function BarChart() {
-  const maxVal = Math.max(...peakHoursData.flatMap(d => [d.today, d.yesterday]));
+function BarChart({ data }: { data: any[] }) {
+  if (!data || data.length === 0) return null;
+  const maxVal = Math.max(...data.flatMap(d => [d.today, d.yesterday]));
   const chartH = 120;
 
   return (
     <div className="flex items-end gap-1 h-32 w-full mt-2">
-      {peakHoursData.map((d, i) => {
-        const todayH = (d.today / maxVal) * chartH;
-        const yestH = (d.yesterday / maxVal) * chartH;
+      {data.map((d, i) => {
+        const todayH = maxVal > 0 ? (d.today / maxVal) * chartH : 0;
+        const yestH = maxVal > 0 ? (d.yesterday / maxVal) * chartH : 0;
         const isHighlight = d.hour === '1pm' || d.hour === '6pm' || d.hour === '7pm' || d.hour === '8pm';
         return (
           <div key={i} className="flex flex-col items-center flex-1 gap-0.5">
@@ -198,11 +174,36 @@ function BarChart() {
 // ─── Main Dashboard ──────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
   const [animateStats, setAnimateStats] = useState(false);
+  const [dashboardData, setDashboardData] = useState<any>(null);
 
   useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/dashboard', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+        setDashboardData(result);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchDashboard();
+    
     const timer = setTimeout(() => setAnimateStats(true), 100);
     return () => clearTimeout(timer);
   }, []);
+
+  const statCards: StatCard[] = dashboardData?.statCards 
+    ? dashboardData.statCards.map((c: any) => ({ ...c, icon: iconMap[c.id || ''] || defaultStatCards[0].icon }))
+    : defaultStatCards;
+
+  const donutSlices = dashboardData?.donutSlices || [];
+  const peakHoursData = dashboardData?.peakHoursData || [];
+  const inventoryItems: InventoryItem[] = dashboardData?.inventoryItems || [];
+  const staffData: StaffMember[] = dashboardData?.staffData || [];
+  const totalRevenue = dashboardData?.totalRevenue || 0;
 
   return (
     <div className="max-w-7xl mx-auto space-y-5">
@@ -254,9 +255,9 @@ export default function AdminDashboardPage() {
             </button>
           </div>
           <div className="flex items-center gap-6">
-            <DonutChart />
+            <DonutChart slices={donutSlices} totalRevenue={totalRevenue} />
             <div className="flex flex-col gap-3">
-              {donutSlices.map((s, i) => (
+              {donutSlices.map((s: any, i: number) => (
                 <div key={i} className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
                   <div>
@@ -283,7 +284,7 @@ export default function AdminDashboardPage() {
               </svg>
             </button>
           </div>
-          <BarChart />
+          <BarChart data={peakHoursData} />
           <div className="flex items-center gap-4 mt-2">
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-sm bg-slate-800 inline-block" />
