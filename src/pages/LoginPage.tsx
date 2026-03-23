@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -15,9 +16,31 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [googleToast, setGoogleToast] = useState(false);
 
+  const googleLoginAction = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setLoading(true);
+      try {
+        const data = await authService.googleLogin(tokenResponse.access_token);
+        login(data.user, data.token);
+        if (data.user.role === 'admin') {
+          navigate('/admin', { replace: true });
+        } else {
+          navigate(from, { replace: true });
+        }
+      } catch (err: any) {
+        setError(err.message || 'Đăng nhập Google thất bại.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      setError('Đăng nhập Google thất bại.');
+    }
+  });
+
   const handleGoogleLogin = () => {
-    setGoogleToast(true);
-    setTimeout(() => setGoogleToast(false), 3000);
+    setError('');
+    googleLoginAction();
   };
 
   // Redirect về trang trước đó nếu có, hoặc về trang chủ
