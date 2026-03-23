@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { AuthUser } from '../services/authService';
+import { authService, type AuthUser } from '../services/authService';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -24,6 +24,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (savedToken && savedUser) {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
+        
+        // Fetch up to date profile (for avatar etc)
+        authService.getProfile(savedToken).then((res: any) => {
+          setUser(res.user);
+          localStorage.setItem('user', JSON.stringify(res.user));
+        }).catch((err: any) => {
+          console.error("Lỗi khi tải profile mới nhất:", err);
+        });
       }
     } catch (e) {
       console.error('Lỗi khi đọc auth từ localStorage:', e);

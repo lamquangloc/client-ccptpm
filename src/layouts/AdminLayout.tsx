@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:5000';
+
 const navItems = [
   {
     label: 'Dashboard',
@@ -83,7 +85,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-200">
                 <img
-                  src={user?.avatar || `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.name || 'admin'}`}
+                  src={user?.avatar && !user.avatar.includes('default') ? `${API_BASE}${user.avatar}` : `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.name || 'admin'}`}
                   alt="avatar"
                   className="w-full h-full object-cover"
                 />
