@@ -69,6 +69,12 @@ export const authService = {
       body: JSON.stringify({ email }),
     }),
 
+  resetPassword: (token: string, password: string) =>
+    request<{ message: string }>(`/auth/reset-password/${token}`, {
+      method: 'PUT',
+      body: JSON.stringify({ password }),
+    }),
+
   getProfile: (token: string) =>
     request<{ user: AuthUser }>('/auth/profile', {
       headers: { Authorization: `Bearer ${token}` },
