@@ -7,7 +7,7 @@ Dưới đây là bảng phân công nhiệm vụ và tên nhánh (branch) dự 
 
 | STT | Thành viên | Vai trò | Phân công công việc | Tên Branch Đề Xuất |
 |:---:|:---|:---|:---|:---|
-| 1 | **Lâm Quang Lộc** | Nhóm trưởng | Trang menu, Trang chi tiết món | `feat/loc-menu-product, main, develop` |
+| 1 | **Lâm Quang Lộc** | Nhóm trưởng | Trang menu, Trang chi tiết món, Quản lý món ăn, Quản lý danh mục | `feat/loc-menu-product, main, develop` |
 | 2 | **Nguyễn Hữu Tịnh** | Thành viên | Quản lý người dùng | `feat/tinh-manage-users` |
 | 3 | **Đào Nhật Cường** | Thành viên | Đăng nhập, đăng kí, quên mật khẩu, dashboard admin | `feat/cuong-auth-dashboard` |
 | 4 | **Hoàng Gia Bảo** | Thành viên | Quản lý bàn | `feat/bao-manage-tables` |

@@ -18,7 +18,13 @@ import AdminCreateUserPage from './pages/admin/AdminCreateUserPage';
 import AdminEditUserPage from './pages/admin/AdminEditUserPage';
 import AdminUserDetailsPage from './pages/admin/AdminUserDetailsPage';
 import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminCreateProductPage from './pages/admin/AdminCreateProductPage';
+import AdminEditProductPage from './pages/admin/AdminEditProductPage';
+import AdminProductDetailsPage from './pages/admin/AdminProductDetailsPage';
 import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
+import AdminCreateCategoryPage from './pages/admin/AdminCreateCategoryPage';
+import AdminEditCategoryPage from './pages/admin/AdminEditCategoryPage';
+import AdminCategoryDetailsPage from './pages/admin/AdminCategoryDetailsPage';
 import AdminTablesPage from './pages/admin/AdminTablesPage';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 import AdminRoute from './components/AdminRoute';
@@ -58,7 +64,13 @@ export default function App() {
         <Route path="users/view/:id" element={<AdminShell><AdminUserDetailsPage /></AdminShell>} />
         <Route path="users/edit/:id" element={<AdminShell><AdminEditUserPage /></AdminShell>} />
         <Route path="products" element={<AdminShell><AdminProductsPage /></AdminShell>} />
+        <Route path="products/create" element={<AdminShell><AdminCreateProductPage /></AdminShell>} />
+        <Route path="products/edit/:id" element={<AdminShell><AdminEditProductPage /></AdminShell>} />
+        <Route path="products/:id" element={<AdminShell><AdminProductDetailsPage /></AdminShell>} />
         <Route path="categories" element={<AdminShell><AdminCategoriesPage /></AdminShell>} />
+        <Route path="categories/create" element={<AdminShell><AdminCreateCategoryPage /></AdminShell>} />
+        <Route path="categories/edit/:id" element={<AdminShell><AdminEditCategoryPage /></AdminShell>} />
+        <Route path="categories/:id" element={<AdminShell><AdminCategoryDetailsPage /></AdminShell>} />
         <Route path="tables" element={<AdminShell><AdminTablesPage /></AdminShell>} />
         <Route path="orders" element={<AdminShell><AdminOrdersPage /></AdminShell>} />
       </Route>
