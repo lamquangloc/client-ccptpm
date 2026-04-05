@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="bg-[#aab09f] rounded-[28px] p-8 text-white relative shadow-sm min-h-[340px] flex flex-col justify-between">
           <div className="flex flex-col items-start xl:items-center xl:text-center mb-6">
             <img 
-              src="/logo.png" 
+              src="/icons/logo_restaurant.png" 
               alt="Ice Restaurant Logo" 
               className="h-16 w-auto object-contain"
             />

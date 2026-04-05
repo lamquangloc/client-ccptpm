@@ -1,0 +1,17 @@
+# Docker Compose cho frontend client (React + Vite build + Nginx)
+services:
+  client:
+    # Build image từ Dockerfile trong thư mục hiện tại
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Truyền URL API vào thời điểm build Vite
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        # Truyền Google Client ID vào bundle frontend khi build
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
+    container_name: ccvmtptpm-client
+    restart: unless-stopped
+    ports:
+      # Truy cập frontend tại http://localhost:3000
+      - "3000:80"

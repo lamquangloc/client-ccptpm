@@ -71,3 +71,41 @@ client-ccptpm/
 - Client sẽ chạy ở `http://localhost:3000`.
 - API backend mặc định proxy sang `http://localhost:5000/api/*`.
 - Khi thêm route mới, cập nhật `src/App.tsx` và tạo file vào `src/pages/`.
+
+## Chạy Client bằng Docker
+
+### File Docker đã thêm
+- `Dockerfile`: Build app React/Vite và serve bằng Nginx.
+- `.dockerignore`: Loại bỏ file/folder không cần thiết khi build image.
+- `nginx.conf`: Cấu hình SPA fallback và proxy API/uploads về backend.
+- `docker-compose.yml`: Chạy container client tại cổng 3000.
+
+### Lệnh chạy
+1. Build và chạy container:
+    ```bash
+    docker compose up --build -d
+    ```
+2. Kiểm tra trạng thái:
+    ```bash
+    docker compose ps
+    ```
+3. Truy cập app:
+    - `http://localhost:3000`
+
+### Biến môi trường quan trọng cho Docker build
+- `VITE_API_BASE_URL`
+- `VITE_GOOGLE_CLIENT_ID`
+
+Client Docker lấy các biến này từ file `.env` để build bundle.
+
+### Troubleshooting nhanh
+- Lỗi login API trả HTML / `Unexpected token '<'`:
+   - Kiểm tra `nginx.conf` có block proxy `/api/` và `/uploads/`.
+   - Kiểm tra backend đang chạy ở `http://localhost:5000`.
+- Lỗi Google login `invalid_client`:
+   - Kiểm tra `VITE_GOOGLE_CLIENT_ID` đúng.
+   - Rebuild lại client container sau khi đổi `.env`:
+      ```bash
+      docker compose up --build -d
+      ```
+   - Thêm origin `http://localhost:3000` trong Google Cloud OAuth.
