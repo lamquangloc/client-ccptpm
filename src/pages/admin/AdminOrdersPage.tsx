@@ -25,6 +25,7 @@ export default function AdminOrdersPage() {
   const [selectedBooking, setSelectedBooking] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('');
+  const [guests, setGuests] = useState<number>(2);
   const [selectedTable, setSelectedTable] = useState('');
   const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
   const [orderStatus, setOrderStatus] = useState<OrderStatus>('pending');
@@ -86,10 +87,12 @@ export default function AdminOrdersPage() {
       if (booking) {
         setCustomerName(booking.name || '');
         setPhone(booking.phone || '');
+        setGuests(booking.guests || 2);
       }
     } else {
       setCustomerName('');
       setPhone('');
+      setGuests(2);
     }
   };
 
@@ -132,7 +135,7 @@ export default function AdminOrdersPage() {
 
     setLoading(true);
     try {
-      const payload: any = {
+      const payload: CreateOrderPayload = {
         table: selectedTable,
         products: selectedProducts.map(p => ({
           product: p.product._id || p.product,
@@ -140,6 +143,7 @@ export default function AdminOrdersPage() {
         })),
         customerName: customerName.trim() !== '' ? customerName : undefined,
         phone: phone.trim() !== '' ? phone : undefined,
+        guests,
         status: orderStatus
       };
       
@@ -192,6 +196,7 @@ export default function AdminOrdersPage() {
     setSelectedBooking('');
     setCustomerName('');
     setPhone('');
+    setGuests(2);
     setSelectedTable('');
     setSelectedProducts([]);
     setOrderStatus('pending');
@@ -206,6 +211,7 @@ export default function AdminOrdersPage() {
     setEditingOrderId(order._id);
     setCustomerName(order.customerName || order.user?.name || '');
     setPhone(order.phone || '');
+    setGuests(order.guests || 2);
     setSelectedTable(order.table?._id || '');
     setSelectedProducts(order.products || []);
     setOrderStatus(order.status);
@@ -469,6 +475,7 @@ export default function AdminOrdersPage() {
                   <div className="flex flex-col gap-2 text-sm text-slate-600">
                     <p><span className="font-semibold text-slate-700">Name:</span> {viewOrder.customerName || viewOrder.user?.name || "Guest"}</p>
                     <p><span className="font-semibold text-slate-700">Phone:</span> {viewOrder.phone || "N/A"}</p>
+                    <p><span className="font-semibold text-slate-700">Guests:</span> <span className="font-bold text-indigo-600">{viewOrder.guests ?? 'N/A'} người</span></p>
                     <p><span className="font-semibold text-slate-700">Table:</span> <span className="font-bold text-[#ff1a1a]">T{viewOrder.table?.number || '?'}</span></p>
                   </div>
                 </div>
@@ -593,6 +600,21 @@ export default function AdminOrdersPage() {
                       className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded outline-none focus:border-[#ff1a1a] text-sm text-slate-800 transition-colors"
                     />
                   </div>
+                </div>
+
+                <div className="flex flex-col gap-2 mt-1">
+                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wide">Số lượng người</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={50}
+                    value={guests}
+                    onChange={(e) => setGuests(Math.max(1, Number(e.target.value) || 1))}
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded outline-none focus:border-[#ff1a1a] text-sm text-slate-800 transition-colors"
+                  />
+                  {selectedBooking && (
+                    <p className="text-[11px] text-indigo-500 font-semibold">Đã tự điền từ booking, bạn vẫn có thể chỉnh lại.</p>
+                  )}
                 </div>
               </div>
 

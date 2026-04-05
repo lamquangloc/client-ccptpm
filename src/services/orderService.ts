@@ -16,6 +16,7 @@ export interface IOrderProduct {
 export interface IOrder {
   _id: string;
   customerName?: string;
+  guests?: number;
   user?: { _id: string; name: string; email: string };
   table: { _id: string; number: number; status: string };
   products: IOrderProduct[];
@@ -31,6 +32,8 @@ export interface CreateOrderPayload {
   products: { product: string; quantity: number }[];
   customerName?: string;
   phone?: string;
+  guests?: number;
+  status?: OrderStatus;
 }
 
 export interface UpdateOrderPayload {
@@ -38,6 +41,7 @@ export interface UpdateOrderPayload {
   products?: { product: string; quantity: number }[];
   customerName?: string;
   phone?: string;
+  guests?: number;
   status?: OrderStatus;
 }
 

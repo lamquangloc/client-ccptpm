@@ -18,6 +18,7 @@ export interface AuthUser {
   email: string;
   role: 'admin' | 'user';
   avatar?: string;
+  phone?: string;
 }
 
 export interface AuthResponse {
@@ -78,5 +79,25 @@ export const authService = {
   getProfile: (token: string) =>
     request<{ user: AuthUser }>('/auth/profile', {
       headers: { Authorization: `Bearer ${token}` },
+    }),
+
+  updateProfile: (token: string, payload: { name?: string; phone?: string }) =>
+    request<{ message: string; user: AuthUser }>('/auth/profile', {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    }),
+
+  changePassword: (token: string, currentPassword: string, newPassword: string) =>
+    request<{ message: string }>('/auth/change-password', {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ currentPassword, newPassword }),
     }),
 };

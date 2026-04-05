@@ -19,7 +19,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white border-b px-8 py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm">
+    <header className="bg-white border-b border-gray-200 px-8 py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm">
       {/* Logo */}
       <Link to="/" className="flex flex-col items-center">
         <img
