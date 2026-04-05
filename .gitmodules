@@ -1,0 +1,4 @@
+[submodule "server-ccptpm"]
+	path = server-ccptpm
+	url = https://github.com/lamquangloc/server-ccptpm.git
+	branch = develop
