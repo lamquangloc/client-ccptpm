@@ -1,0 +1,22 @@
+# Local dependencies are reinstalled inside image
+node_modules
+
+# Build output generated inside Docker build stage
+dist
+
+# Git data is not needed in build context
+.git
+.gitignore
+
+# Local env files should not be copied into image
+.env
+.env.*
+
+# Logs
+npm-debug.log
+
+# Editor/OS files
+.vscode
+.idea
+.DS_Store
+Thumbs.db
