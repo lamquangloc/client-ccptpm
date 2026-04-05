@@ -23,7 +23,7 @@ export default function Header() {
       {/* Logo */}
       <Link to="/" className="flex flex-col items-center">
         <img
-          src="/logo.png"
+          src="/icons/logo_restaurant.png"
           alt="Ice Restaurant Logo"
           className="h-14 object-contain"
         />
