@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Phone, Mail, MapPin, Info } from "lucide-react";
+import { bookingService } from '../services/bookingService';
 
-// Images (will be replaced by user later, using placeholders for now)
+// Images
 const bookingBg = "/UI/image 13.png";
 const burgerImg = "/UI/image 23.png";
 const chickenImg = "/UI/image 22.png";
@@ -16,33 +17,44 @@ const Button = ({ children, className, ...props }: React.ButtonHTMLAttributes<HT
   </button>
 );
 
+// Select component dùng style giống Input
+const Select = (props: React.SelectHTMLAttributes<HTMLSelectElement>) => (
+  <select {...props} className={`w-full rounded-md px-4 py-3 outline-none text-slate-800 bg-white font-medium appearance-none cursor-pointer ${props.className || ""}`} />
+);
+
 const BookingPage = () => {
-  const [form, setForm] = useState({ name: "", phone: "", date: "", time: "" });
+  const [form, setForm] = useState({ name: "", phone: "", date: "", time: "", guests: "2" });
+  const [loading, setLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleChange = (field: string, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
   const handleBook = async () => {
+    setSuccessMsg(""); setErrorMsg("");
+
     if (!form.name || !form.phone || !form.date || !form.time) {
-      alert("Vui lòng điền đầy đủ thông tin!");
+      setErrorMsg("Vui lòng điền đầy đủ thông tin!");
       return;
     }
 
+    setLoading(true);
     try {
-      // Dynamic import to avoid changing top level imports if possible, or just add the import at the top.
-      const { bookingService } = await import('../services/bookingService');
       await bookingService.createBooking({
         name: form.name,
         phone: form.phone,
         date: form.date,
         time: form.time,
-        guests: 2 // default
+        guests: parseInt(form.guests, 10),
       });
-      alert("Đặt bàn thành công! Hệ thống đã ghi nhận.");
-      setForm({ name: "", phone: "", date: "", time: "" });
+      setSuccessMsg("🎉 Đặt bàn thành công! Hệ thống đã ghi nhận yêu cầu của bạn.");
+      setForm({ name: "", phone: "", date: "", time: "", guests: "2" });
     } catch (error: any) {
-      alert("Lỗi khi đặt bàn: " + error.message);
+      setErrorMsg("❌ Lỗi khi đặt bàn: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,7 +84,7 @@ const BookingPage = () => {
         className="relative w-full max-w-[1100px] rounded-md overflow-hidden mb-24 shadow-2xl z-20 border border-gray-800"
         style={{ backgroundImage: `url('${bookingBg}')`, backgroundSize: "cover", backgroundPosition: "center" }}
       >
-        {/* Dark overlay for readability */}
+        {/* Dark overlay */}
         <div className="absolute inset-0 bg-black/70" />
 
         <div className="relative z-10 flex flex-col md:flex-row gap-8 p-8 md:p-14">
@@ -87,7 +99,6 @@ const BookingPage = () => {
                 <p className="text-[#00ffff] font-bold text-base mt-1 tracking-wide">1900 1234</p>
               </div>
             </div>
-
             <div className="flex items-center gap-5">
               <div className="w-12 h-12 rounded-full bg-[#ffcc00] flex items-center justify-center flex-shrink-0">
                 <Mail size={24} className="text-black" fill="currentColor" />
@@ -97,7 +108,6 @@ const BookingPage = () => {
                 <p className="text-[#00ffff] font-bold text-base mt-1 tracking-wide">info@foodio.com</p>
               </div>
             </div>
-
             <div className="flex items-center gap-5">
               <div className="w-12 h-12 rounded-full bg-[#ffcc00] flex items-center justify-center flex-shrink-0">
                 <MapPin size={24} className="text-black" fill="currentColor" />
@@ -111,57 +121,97 @@ const BookingPage = () => {
 
           {/* Form */}
           <div className="flex-1 flex flex-col gap-5 mt-6 md:mt-0 justify-center">
+            {/* Thông báo */}
+            {successMsg && (
+              <div className="bg-green-500/20 border border-green-400 text-green-300 rounded-lg px-4 py-3 text-sm font-medium">
+                {successMsg}
+              </div>
+            )}
+            {errorMsg && (
+              <div className="bg-red-500/20 border border-red-400 text-red-300 rounded-lg px-4 py-3 text-sm font-medium">
+                {errorMsg}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <Input
-                placeholder="Full Name"
+                placeholder="Họ và tên"
                 value={form.name}
                 onChange={(e) => handleChange("name", e.target.value)}
               />
               <Input
-                placeholder="Phone No"
+                placeholder="Số điện thoại"
+                type="tel"
                 value={form.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
               />
               <Input
                 type="date"
-                placeholder="Date"
                 value={form.date}
                 onChange={(e) => handleChange("date", e.target.value)}
-                className="text-gray-500 placeholder-gray-400"
+                className="text-gray-500"
+                min={new Date().toISOString().split('T')[0]}
               />
               <Input
                 type="time"
-                placeholder="Time"
                 value={form.time}
                 onChange={(e) => handleChange("time", e.target.value)}
-                className="text-gray-500 placeholder-gray-400"
+                className="text-gray-500"
               />
+
+              {/* Trường số người — span 2 cột trên mobile, 1 cột trong grid */}
+              <div className="relative md:col-span-2">
+                <label className="block text-xs text-gray-300 font-semibold mb-1.5 pl-1">
+                  👥 Số người
+                </label>
+                <Select
+                  value={form.guests}
+                  onChange={(e) => handleChange("guests", e.target.value)}
+                >
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                    <option key={n} value={n}>
+                      {n} người
+                    </option>
+                  ))}
+                  <option value="11">Trên 10 người (liên hệ trực tiếp)</option>
+                </Select>
+                {/* Custom arrow */}
+                <div className="pointer-events-none absolute right-3 bottom-3 text-gray-500">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
+
             <div className="flex justify-end mt-4">
-              <Button 
+              <Button
                 onClick={handleBook}
-                className="bg-[#ff00ff] hover:bg-[#d600d6] text-white px-10 py-3 rounded-lg font-bold text-lg shadow-[0_0_15px_rgba(255,0,255,0.5)]"
+                disabled={loading}
+                className="bg-[#ff00ff] hover:bg-[#d600d6] text-white px-10 py-3 rounded-lg font-bold text-lg shadow-[0_0_15px_rgba(255,0,255,0.5)] disabled:opacity-70 flex items-center gap-2"
               >
-                Book Now
+                {loading ? (
+                  <>
+                    <span className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Đang đặt...
+                  </>
+                ) : (
+                  'Book Now'
+                )}
               </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. Bottom Images Section */}
+      {/* 4. Bottom Images */}
       <div className="w-full max-w-[1200px] px-4 flex flex-col md:flex-row justify-between items-center z-10 relative gap-16 md:gap-0 mt-8">
-
-        {/* Left Burger Image (Rotated Square) */}
         <div className="w-64 h-64 md:w-[26rem] md:h-[26rem] bg-[#1a222c] rounded-[2rem] transform -rotate-[15deg] overflow-hidden shadow-2xl relative ml-0 md:ml-12 group transition-all hover:-rotate-12 duration-500">
-          <img src={burgerImg} alt="Burger Placeholder" className="w-full h-full object-cover transform rotate-[15deg] scale-125 group-hover:scale-110 transition-transform duration-700" />
+          <img src={burgerImg} alt="Burger" className="w-full h-full object-cover transform rotate-[15deg] scale-125 group-hover:scale-110 transition-transform duration-700" />
         </div>
-
-        {/* Right Chicken Image (Circle) */}
         <div className="w-72 h-72 md:w-[30rem] md:h-[30rem] bg-[#1a222c] rounded-full overflow-hidden shadow-2xl relative mr-0 md:mr-10 group flex items-center justify-center">
-          <img src={chickenImg} alt="Chicken Placeholder" className="w-full h-full object-cover scale-[1.6] group-hover:scale-[1.8] transition-transform duration-700" />
+          <img src={chickenImg} alt="Chicken" className="w-full h-full object-cover scale-[1.6] group-hover:scale-[1.8] transition-transform duration-700" />
         </div>
-
       </div>
 
     </div>
