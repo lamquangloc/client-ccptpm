@@ -25,6 +25,7 @@ export default function AdminOrdersPage() {
   const [selectedBooking, setSelectedBooking] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('');
+  const [guests, setGuests] = useState<number>(2);
   const [selectedTable, setSelectedTable] = useState('');
   const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
   const [orderStatus, setOrderStatus] = useState<OrderStatus>('pending');
@@ -86,10 +87,12 @@ export default function AdminOrdersPage() {
       if (booking) {
         setCustomerName(booking.name || '');
         setPhone(booking.phone || '');
+        setGuests(booking.guests || 2);
       }
     } else {
       setCustomerName('');
       setPhone('');
+      setGuests(2);
     }
   };
 
@@ -140,6 +143,7 @@ export default function AdminOrdersPage() {
         })),
         customerName: customerName.trim() !== '' ? customerName : undefined,
         phone: phone.trim() !== '' ? phone : undefined,
+        guests,
         status: orderStatus
       };
       
@@ -192,6 +196,7 @@ export default function AdminOrdersPage() {
     setSelectedBooking('');
     setCustomerName('');
     setPhone('');
+    setGuests(2);
     setSelectedTable('');
     setSelectedProducts([]);
     setOrderStatus('pending');
@@ -206,6 +211,7 @@ export default function AdminOrdersPage() {
     setEditingOrderId(order._id);
     setCustomerName(order.customerName || order.user?.name || '');
     setPhone(order.phone || '');
+    setGuests((order as any).guests || 2);
     setSelectedTable(order.table?._id || '');
     setSelectedProducts(order.products || []);
     setOrderStatus(order.status);
@@ -469,6 +475,7 @@ export default function AdminOrdersPage() {
                   <div className="flex flex-col gap-2 text-sm text-slate-600">
                     <p><span className="font-semibold text-slate-700">Name:</span> {viewOrder.customerName || viewOrder.user?.name || "Guest"}</p>
                     <p><span className="font-semibold text-slate-700">Phone:</span> {viewOrder.phone || "N/A"}</p>
+                    <p><span className="font-semibold text-slate-700">Guests:</span> <span className="font-bold text-indigo-600">{(viewOrder as any).guests ?? 'N/A'} người</span></p>
                     <p><span className="font-semibold text-slate-700">Table:</span> <span className="font-bold text-[#ff1a1a]">T{viewOrder.table?.number || '?'}</span></p>
                   </div>
                 </div>
@@ -594,6 +601,15 @@ export default function AdminOrdersPage() {
                     />
                   </div>
                 </div>
+                {/* Số khách — chỉ hiển thị khi chọn booking */}
+                {selectedBooking && (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-indigo-50 border border-indigo-200 rounded-lg">
+                    <span className="text-indigo-500 text-base">👥</span>
+                    <span className="text-xs font-bold text-indigo-600 uppercase tracking-wide">Số khách:</span>
+                    <span className="font-black text-indigo-700 text-sm">{guests} người</span>
+                    <span className="ml-auto text-[10px] text-indigo-400 italic">(từ đặt bàn)</span>
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col gap-2">

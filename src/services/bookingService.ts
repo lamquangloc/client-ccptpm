@@ -1,15 +1,23 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
+export interface BookingTable {
+  _id: string;
+  number: number;
+  status: string;
+}
+
 export interface Booking {
   _id: string;
+  userId?: string;
   name: string;
   phone: string;
-  date: string;
-  time: string;
+  date: string;   // YYYY-MM-DD từ server
+  time: string;   // HH:mm
   guests: number;
-  table?: { _id: string; number: number; status: string } | string;
-  status: 'pending' | 'confirmed' | 'canceled' | 'completed' | string;
+  table?: BookingTable | string;
+  status: 'pending' | 'confirmed' | 'canceled' | 'completed';
   createdAt?: string;
+  updatedAt?: string;
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -38,21 +46,26 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export const bookingService = {
-  createBooking: (payload: any) => request<Booking>('/bookings', {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  }),
+  createBooking: (payload: any) =>
+    request<Booking>('/bookings', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 
   getAllBookings: () => request<Booking[]>('/bookings'),
 
   getMyBookings: () => request<Booking[]>('/bookings/my-bookings'),
 
-  updateBooking: (id: string, payload: Partial<Booking>) => request<Booking>(`/bookings/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(payload)
-  }),
+  getBookingById: (id: string) => request<Booking>(`/bookings/${id}`),
 
-  cancelBooking: (id: string) => request<any>(`/bookings/${id}/cancel`, {
-    method: 'POST'
-  }),
+  updateBooking: (id: string, payload: Partial<Booking>) =>
+    request<Booking>(`/bookings/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+
+  cancelBooking: (id: string) =>
+    request<{ message: string; booking: Booking }>(`/bookings/${id}/cancel`, {
+      method: 'POST',
+    }),
 };
