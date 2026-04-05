@@ -15,7 +15,6 @@ interface StaffMember {
   name: string;
   tables: number;
   sales: string;
-  tips: string;
   avatar: string;
 }
 
@@ -201,7 +200,7 @@ export default function AdminDashboardPage() {
 
   const donutSlices = dashboardData?.donutSlices || [];
   const peakHoursData = dashboardData?.peakHoursData || [];
-  const inventoryItems: InventoryItem[] = dashboardData?.inventoryItems || [];
+  const availableTables: any[] = dashboardData?.availableTables || [];
   const staffData: StaffMember[] = dashboardData?.staffData || [];
   const totalRevenue = dashboardData?.totalRevenue || 0;
 
@@ -304,25 +303,25 @@ export default function AdminDashboardPage() {
 
       {/* ── Bottom Row ─────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Inventory Alerts */}
+        {/* Available Tables */}
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-orange-50 rounded-lg">
-                <svg className="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-1.5 bg-green-50 rounded-lg">
+                <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
-              <h2 className="font-bold text-slate-800">Inventory Alerts</h2>
+              <h2 className="font-bold text-slate-800">Available Tables</h2>
             </div>
             <button className="text-sm font-semibold text-green-500 hover:text-green-700 transition">
-              View Inventory
+              View All
             </button>
           </div>
 
           <div className="flex flex-col gap-3">
-            {inventoryItems.map((item, i) => (
+            {availableTables.map((item: any, i: number) => (
               <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:bg-slate-50 transition-colors group">
                 <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl flex-shrink-0">
                   {item.emoji}
@@ -331,15 +330,14 @@ export default function AdminDashboardPage() {
                   <p className="text-sm font-semibold text-slate-800 truncate">{item.name}</p>
                   <p className={`text-xs font-medium ${item.color}`}>{item.statusText}</p>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 transition-opacity px-3 py-1.5 rounded-lg border border-green-400 text-green-600 text-xs font-semibold hover:bg-green-50">
-                  Reorder
-                </button>
-                {/* Default reorder badge */}
-                <span className="group-hover:hidden px-3 py-1.5 rounded-lg border border-green-400 text-green-600 text-xs font-semibold">
-                  Reorder
+                <span className="px-3 py-1.5 rounded-lg border border-green-400 text-green-600 text-xs font-semibold">
+                  Book Now
                 </span>
               </div>
             ))}
+            {availableTables.length === 0 && (
+              <p className="text-sm text-slate-400 text-center py-4">No tables available</p>
+            )}
           </div>
         </div>
 
@@ -353,7 +351,7 @@ export default function AdminDashboardPage() {
                     d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h2 className="font-bold text-slate-800">Staff Performance</h2>
+              <h2 className="font-bold text-slate-800">User Bookings</h2>
             </div>
             <button className="text-sm font-semibold text-green-500 hover:text-green-700 transition">
               Full Report
@@ -363,10 +361,9 @@ export default function AdminDashboardPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-xs text-slate-400 uppercase tracking-wide">
-                <th className="text-left pb-3 font-semibold">Server</th>
+                <th className="text-left pb-3 font-semibold">User</th>
                 <th className="text-center pb-3 font-semibold">Tables</th>
                 <th className="text-right pb-3 font-semibold">Sales</th>
-                <th className="text-right pb-3 font-semibold">Tips</th>
               </tr>
             </thead>
             <tbody>
@@ -386,7 +383,6 @@ export default function AdminDashboardPage() {
                   </td>
                   <td className="py-3 text-center text-slate-600">{s.tables}</td>
                   <td className="py-3 text-right font-semibold text-slate-800">{s.sales}</td>
-                  <td className="py-3 text-right font-semibold text-green-500">{s.tips}</td>
                 </tr>
               ))}
             </tbody>
