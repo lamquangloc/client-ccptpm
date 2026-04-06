@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 interface Category {
   _id: string;
@@ -84,10 +84,12 @@ const resolveCategoryIdFromProduct = (product: Product): string[] => {
 
 export default function MenuPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [loading, setLoading] = useState(true);
+  const categoryFromUrl = searchParams.get('category') || '';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -104,10 +106,6 @@ export default function MenuPage() {
         const nextCategories = Array.isArray(categoryData) ? categoryData : [];
         setCategories(nextCategories);
         setProducts(Array.isArray(productData) ? productData : []);
-
-        if (nextCategories.length > 0) {
-          setSelectedCategoryId(nextCategories[0]._id);
-        }
       } catch (error) {
         console.error('Lỗi tải dữ liệu menu:', error);
       } finally {
@@ -117,6 +115,18 @@ export default function MenuPage() {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (categories.length === 0) return;
+
+    if (!categoryFromUrl) {
+      setSelectedCategoryId(categories[0]._id);
+      return;
+    }
+
+    const exists = categories.some((category) => category._id === categoryFromUrl);
+    setSelectedCategoryId(exists ? categoryFromUrl : categories[0]._id);
+  }, [categories, categoryFromUrl]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -139,7 +149,10 @@ export default function MenuPage() {
               <button
                 key={category._id}
                 type="button"
-                onClick={() => setSelectedCategoryId(category._id)}
+                onClick={() => {
+                  setSelectedCategoryId(category._id);
+                  setSearchParams({ category: category._id });
+                }}
                 className="group relative min-w-[82px] shrink-0"
               >
                 <div className="flex flex-col items-center">

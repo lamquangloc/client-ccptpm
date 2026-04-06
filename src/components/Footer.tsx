@@ -1,6 +1,31 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+interface FooterCategory {
+  _id: string;
+  name: string;
+}
+
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
 export default function Footer() {
+  const [categories, setCategories] = useState<FooterCategory[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_URL}/categories`);
+        const data = await response.json();
+        setCategories(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Lỗi tải danh mục ở footer:', error);
+        setCategories([]);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <footer className="bg-white py-16 px-4 md:px-10 lg:px-16 container mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
@@ -50,11 +75,21 @@ export default function Footer() {
             <span className="absolute left-0 bottom-[-2px] w-[80%] h-1 bg-[#ffdb33]"></span>
           </h3>
           <ul className="space-y-5 text-gray-700 font-semibold">
-            <li><Link className="hover:text-black transition-colors" to="#">Steaks {'>'}</Link></li>
-            <li><Link className="hover:text-black transition-colors" to="#">Burgers {'>'}</Link></li>
-            <li><Link className="hover:text-black transition-colors" to="#">Coctails {'>'}</Link></li>
-            <li><Link className="hover:text-black transition-colors" to="#">Bar B Q {'>'}</Link></li>
-            <li><Link className="hover:text-black transition-colors" to="#">Desserts {'>'}</Link></li>
+            {categories.length > 0 ? (
+              categories.slice(0, 8).map((category) => (
+                <li key={category._id}>
+                  <Link className="hover:text-black transition-colors" to={`/menu?category=${encodeURIComponent(category._id)}`}>
+                    {category.name} {'>'}
+                  </Link>
+                </li>
+              ))
+            ) : (
+              <li>
+                <Link className="hover:text-black transition-colors" to="/menu">
+                  Xem thực đơn {'>'}
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
 
