@@ -25,27 +25,68 @@ Dưới đây là bảng phân công nhiệm vụ và tên nhánh (branch) dự 
 ## Cấu trúc chính
 ```
 client-ccptpm/
+├── .github/
+│   └── workflows/
+│       └── docker-build-push.yml
 ├── public/                  # Tài nguyên tĩnh
-│   └── index.html
+│   ├── icons/
+│   └── UI/
 ├── src/
 │   ├── components/          # Các component tái sử dụng
+│   │   ├── AdminRoute.tsx
+│   │   ├── ConfirmModal.tsx
+│   │   ├── Footer.tsx
+│   │   ├── Header.tsx
+│   │   └── ProtectedRoute.tsx
+│   ├── context/
+│   │   ├── AuthContext.tsx
+│   │   └── ThemeContext.tsx
 │   ├── layouts/             # Layout / Header / Footer
+│   │   ├── AdminLayout.tsx
 │   │   └── Layout.tsx
 │   ├── pages/               # Các trang chính
 │   │   ├── admin/           # Trang admin
-│   │   ├── AboutPage.tsx
+│   │   │   ├── AdminCategoriesPage.tsx
+│   │   │   ├── AdminCategoryDetailsPage.tsx
+│   │   │   ├── AdminCreateCategoryPage.tsx
+│   │   │   ├── AdminCreateProductPage.tsx
+│   │   │   ├── AdminCreateUserPage.tsx
+│   │   │   ├── AdminDashboardPage.tsx
+│   │   │   ├── AdminEditCategoryPage.tsx
+│   │   │   ├── AdminEditProductPage.tsx
+│   │   │   ├── AdminEditUserPage.tsx
+│   │   │   ├── AdminOrdersPage.tsx
+│   │   │   ├── AdminProductDetailsPage.tsx
+│   │   │   ├── AdminProductsPage.tsx
+│   │   │   ├── AdminTablesPage.tsx
+│   │   │   ├── AdminUserDetailsPage.tsx
+│   │   │   └── AdminUsersPage.tsx
 │   │   ├── BookingPage.tsx
 │   │   ├── ForgotPasswordPage.tsx
 │   │   ├── HomePage.tsx
 │   │   ├── LoginPage.tsx
 │   │   ├── MenuPage.tsx
+│   │   ├── NotFoundPage.tsx
+│   │   ├── ProfilePage.tsx
 │   │   ├── ProductPage.tsx
 │   │   ├── RegisterPage.tsx
+│   │   ├── ResetPasswordPage.tsx
 │   │   └── SearchPage.tsx
+│   ├── services/
+│   │   ├── authService.ts
+│   │   ├── bookingService.ts
+│   │   ├── orderService.ts
+│   │   ├── productService.ts
+│   │   ├── tableService.ts
+│   │   └── userService.ts
 │   ├── App.tsx
 │   ├── index.css
 │   ├── main.tsx
 │   └── vite-env.d.ts
+├── .dockerignore
+├── docker-compose.yml
+├── Dockerfile
+├── nginx.conf
 ├── tailwind.config.js
 ├── postcss.config.js
 ├── tsconfig.json
@@ -66,6 +107,45 @@ client-ccptpm/
    ```bash
    npm run build
    ```
+
+## Hướng dẫn Submodule (server-ccptpm)
+
+Repository client đang khai báo backend là Git submodule:
+- Path: `server-ccptpm`
+- URL: `https://github.com/lamquangloc/server-ccptpm.git`
+- Branch theo dõi: `develop`
+
+### Clone đầy đủ cả submodule
+```bash
+git clone --recurse-submodules https://github.com/lamquangloc/client-ccptpm.git
+```
+
+Nếu đã clone trước đó (chưa có submodule):
+```bash
+git submodule update --init --recursive
+```
+
+### Cập nhật submodule lên commit mới nhất của branch develop
+```bash
+git submodule update --remote --merge
+```
+
+Sau khi update, commit ở repository cha để lưu lại con trỏ submodule:
+```bash
+git add .gitmodules server-ccptpm
+git commit -m "chore: update server submodule pointer"
+git push
+```
+
+### Khi pull code mới từ repository cha
+```bash
+git pull
+git submodule update --init --recursive
+```
+
+### Lỗi thường gặp
+- Thư mục `server-ccptpm` rỗng hoặc thiếu file: chạy lại `git submodule update --init --recursive`.
+- Team pull về nhưng backend không đúng version: vào repo cha và chạy `git submodule status` để kiểm tra commit submodule hiện tại.
 
 ## Lưu ý
 - Client sẽ chạy ở `http://localhost:3000`.
